@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# uv / venv
+.venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Ultralytics outputs and model weights
+runs/
+*.pt
+*.onnx
+*.engine
+
+# Data: keep folder structure, ignore contents
+data/*
+!data/.gitkeep
+
+# Secrets / local config
+.env
+*.local.yaml
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
