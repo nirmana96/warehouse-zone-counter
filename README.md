@@ -151,18 +151,41 @@ Tracker changes from the Ultralytics `botsort.yaml` defaults, in `configs/tracke
 | `gmc_method` | `sparseOptFlow` | `none` | the camera never moves, so save the CPU |
 | `with_reid` | `False` | `True` | appearance helps keep an ID through short occlusions |
 
-## First measured run
+## Full-video run
 
-`cam_04`, first 900 frames (30 s), PyTorch on CPU, `imgsz` 960. **CPU: Intel Core i5-11400H @ 2.70 GHz.**
+`cam_04`, all 9,000 frames (5 min), PyTorch on CPU, `imgsz` 960. **CPU: Intel Core i5-11400H @ 2.70 GHz.**
 
 | | |
 | --- | --- |
-| Throughput | 11.3 FPS (includes model warm-up) |
-| Red (`aisle_main`) entries | 3, dwell 3.6 s / 10.4 s / 13.3 s |
-| Green (`walkway_front`) visits | 3, dwell 3.3 s / 3.9 s / 0.3 s |
-| Track IDs with 2+ red entries | none |
+| Throughput | 12.8 FPS over 701 s (includes model warm-up) |
+| Tracks | 164 track IDs started |
+| Events | 474 (164 `track_started`, 164 `track_lost`, 73 `zone_entered`, 73 `zone_exited`) |
 
-These are raw system counts, not yet checked against hand labels. The 0.3 s green visit looks like a detection flicker and is a candidate for tuning.
+```mermaid
+xychart-beta
+    title "Visits per zone"
+    x-axis ["aisle_main (red)", "walkway_front (green)"]
+    y-axis "visits" 0 --> 60
+    bar [53, 20]
+```
+
+| Zone | Visits | Median dwell | Mean dwell | Max dwell | Under 1 s | Exit reason |
+| --- | --- | --- | --- | --- | --- | --- |
+| `aisle_main` (red) | 53 | 3.3 s | 4.0 s | 13.3 s | 20 | 42 walked out, 11 track lost |
+| `walkway_front` (green) | 20 | 1.2 s | 3.3 s | 14.2 s | 9 | 11 walked out, 8 track lost, 1 stream ended |
+
+**Repeat red entries:** 38 track IDs entered the red zone, and 8 of them entered more than once.
+
+| Track ID | 29 | 118 | 135 | 138 | 158 | 231 | 237 | 262 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Red entries | 2 | 2 | 2 | 4 | 2 | 5 | 3 | 3 |
+
+What these numbers do and do not show:
+
+- **They are raw system counts**, not yet checked against hand labels.
+- **Short visits are suspect.** 20 of 53 red visits and 9 of 20 green visits last under 1 s. People clipping a zone edge, detection flicker or ID switches would all look like this. They are the first thing to check against labels, and a minimum dwell may be needed.
+- **High repeat counts may be ID switches.** A track with 4 or 5 red entries could be a real person going back and forth, or two people sharing an ID.
+- **The FPS is slightly low.** For part of this run the CPU was also rendering the demo GIF.
 
 ## Project layout
 
