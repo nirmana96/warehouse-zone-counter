@@ -5,6 +5,10 @@ Counts people moving through zones on warehouse CCTV. Each person is tracked, th
 - **Red zone** (`aisle_main`): every visit with entry, exit and dwell, plus repeat entries per track ID.
 - **Green zone** (`walkway_front`): every visit with entry, exit and dwell. Traffic only, no per-person repeats.
 
+![Tracking on cam_04: zones, track IDs and foot points, heads pixelated](docs/cam_04_tracking.gif)
+
+*First 12 s of `cam_04`. A box turns red or green once its foot point has entered that zone. Every detected person's head is pixelated before the overlay is drawn.*
+
 > **Status: step 3 of week 1.** Config, tracking, the zone state machine and a preview runner work. The SQL event store, face blur, snapshots and dashboard are next. See the [roadmap](#roadmap).
 
 ## How it works
@@ -207,6 +211,7 @@ flowchart LR
 ## Privacy
 
 - **No identity.** Track IDs are anonymous integers. ReID appearance features stay inside the tracker's memory and are never written to disk.
-- **No images leave the process yet.** Events and the JSONL file hold coordinates and times only. The `--show` and `draw_zones.py` windows are on-screen only and are **not blurred**, so do not screen-record them.
+- **Events hold no images.** Events and the JSONL file hold coordinates and times only. The `--show` and `draw_zones.py` windows are on-screen only and are **not blurred**, so do not screen-record them.
+- **The demo GIF is pixelated.** The head region (top third of the box, padded) of every person detected at confidence 0.1 or above is pixelated before anything is drawn.
 - **Face blur comes before any frame is saved or streamed.** It arrives with `privacy.py` together with snapshots and the dashboard, and there will be no flag to turn it off.
 - Video and model weights are never committed.
