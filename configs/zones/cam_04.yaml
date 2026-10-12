@@ -1,0 +1,35 @@
+# cam_04: one red and one green zone.
+# frame_size and both polygons are written by tools/draw_zones.py. Redraw them rather than
+# editing by hand:
+#   uv run python tools/draw_zones.py --config configs/zones/cam_04.yaml
+# Everything else in this file is yours to set.
+
+camera: cam_04
+source: data/amc/cam_04.mp4
+recording_start: "2026-01-01T08:00:00Z"   # video time 0; the footage has no wall clock
+frame_size: [1920, 1080]  # set by draw_zones.py from the video
+
+classes: [person]
+anchor: bottom_center     # foot point = bottom-centre of the box
+enter_frames: 5           # inside 5 observations in a row = entered
+exit_frames: 5            # outside 5 observations in a row = exited
+lost_frames: 60           # missing > 60 frames (~2 s) = track lost, open visit closed
+
+detector:
+  model: yolo26n.pt
+  tracker: configs/trackers/botsort_reid.yaml
+  conf: 0.3
+  imgsz: 960              # 640 misses people far down the aisle; measure both and keep what works
+  device: cpu
+
+zones:
+  - id: aisle_main
+    colour: red
+    polygon: [[852, 354], [1071, 352], [1120, 459], [824, 465], [852, 357]]
+    track_repeats: true       # count repeat entries per track ID
+    snapshot_on_enter: true   # blurred snapshot with track ID on every entry
+  - id: walkway_front
+    colour: green
+    polygon: [[1237, 734], [1913, 724], [1915, 1070], [1267, 1071], [1236, 734]]
+    track_repeats: false      # green counts traffic only
+    snapshot_on_enter: false

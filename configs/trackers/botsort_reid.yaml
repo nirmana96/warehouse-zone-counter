@@ -1,0 +1,17 @@
+# BoT-SORT for one fixed warehouse camera, with ReID on.
+# Starts from Ultralytics' botsort.yaml defaults (ultralytics 8.4.x). Changed lines are marked.
+
+tracker_type: botsort
+track_high_thresh: 0.25
+track_low_thresh: 0.1
+new_track_thresh: 0.25
+track_buffer: 60          # changed from 30: keep a hidden person's ID for ~2 s at 30 fps (rack occlusion)
+match_thresh: 0.8
+fuse_score: True
+
+gmc_method: none          # changed from sparseOptFlow: the camera never moves, so skip motion compensation and save CPU
+
+proximity_thresh: 0.5
+appearance_thresh: 0.8
+with_reid: True           # changed from False: appearance features help keep an ID through short occlusions
+model: auto               # "auto" reuses the detector's own features, no extra ReID model to download
